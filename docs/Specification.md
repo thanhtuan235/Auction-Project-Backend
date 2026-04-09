@@ -39,6 +39,14 @@
 
 ---
 
+### ⚙️ Admin
+
+- **US.14**: Là Admin, tôi có thể quản lý được các user account (Phân quyền, Khóa tài khoản, Gửi cảnh báo, Xóa tài khoản).
+
+- **US.15**: Là Admin, tôi có thể quản lý được các cuộc đấu giá (Xóa đấu giá).
+
+---
+
 ## 2. Requirements 
 
 ### 2.1. Functional Requirements 
@@ -68,6 +76,8 @@
 - **F.09 - Auto-initiate Conversation**: Khi phiên đấu giá chuyển sang trạng thái CLOSED và có winner_id, hệ thống tự động khởi tạo một bản ghi hội thoại (Conversation) gắn với auction_id.
 
 - **F.10 - System Generated Message**: Hệ thống tự động gửi một tin nhắn định dạng "Announcement" vào hội thoại ngay khi khởi tạo (Ví dụ: "Chúc mừng! Bạn đã thắng đấu giá sản phẩm [Tên SP] với mức giá [Giá]...").
+
+- **F.11 - Admin Management**: Hệ thống phải có một panel riêng cho admin để có thể quản lý các user và các auction.
 ---
 
 ### 2.2. Non-Functional Requirements 
