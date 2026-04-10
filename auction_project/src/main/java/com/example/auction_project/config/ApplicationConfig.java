@@ -1,6 +1,9 @@
 package com.example.auction_project.config;
 
 import lombok.RequiredArgsConstructor;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.auction_project.entity.Auction;
 import com.example.auction_project.repository.UserRepository;
 
 @Configuration
@@ -34,12 +38,20 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
+
+        modelMapper.typeMap(Auction.class, Auction.class).addMappings(mapper -> {
+            mapper.skip(Auction::setId);
+            mapper.skip(Auction::setSeller);
+        });
+
+        return modelMapper;
     }
 }

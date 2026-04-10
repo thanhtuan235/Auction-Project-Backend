@@ -1,9 +1,9 @@
 package com.example.auction_project.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,14 +44,15 @@ public class User implements UserDetails{
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(precision = 19, scale = 4)
-    private BigDecimal balance;
+    @Column(nullable = false, length = 20)
+    private String status;
 
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @ManyToMany
@@ -85,7 +86,7 @@ public class User implements UserDetails{
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; 
+        return "ACTIVE".equals(status);
     }
 
     @Override

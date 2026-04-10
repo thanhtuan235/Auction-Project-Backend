@@ -3,6 +3,11 @@ package com.example.auction_project.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;
@@ -13,6 +18,8 @@ import java.util.HashSet;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE auctions SET is_deleted = true WHERE id = ?")
+@SQLRestriction("is_deleted = false")
 public class Auction {
 
     @Id
@@ -57,7 +64,12 @@ public class Auction {
     private LocalDateTime endAt;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private boolean isDeleted = false;
 
     // User interest
     @ManyToMany

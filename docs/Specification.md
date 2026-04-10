@@ -356,7 +356,7 @@ Hệ thống sử dụng PostgreSQL để lưu trữ dữ liệu bền vững, �
 | email          | VARCHAR(100)     | UNIQUE, NOT NULL                   | Email |
 | password_hash  | TEXT             | NOT NULL                           | Mật khẩu mã hóa |
 | role           | VARCHAR(20)      | NOT NULL                           | BIDDER, SELLER, ADMIN |
-| balance        | DECIMAL(19,4)    | Default: 0.0000, CHECK ≥ 0         | Số dư |
+| status         | VARCHAR(20)      | NOT NULL                           | LOCKED, ACTIVE |
 | created_at     | TIMESTAMP        | Default: now()                     | Thời gian tạo |
 | updated_at     | TIMESTAMP        |
 
