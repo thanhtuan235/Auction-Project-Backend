@@ -31,6 +31,7 @@ public class AuctionService {
             auction.getCategory().getId(), 
             auction.getTitle(),
             auction.getDescription(),
+            auction.getImageUrls(),
             auction.getStartPrice(),
             auction.getBidStep(),
             auction.getCurrentPrice(),
@@ -62,6 +63,7 @@ public class AuctionService {
                 .category(category)
                 .title(request.title())
                 .description(request.description())
+                .imageUrls(request.imageUrls())
                 .startPrice(request.startPrice())
                 .bidStep(request.bidStep())
                 .currentPrice(request.startPrice())
@@ -92,6 +94,11 @@ public class AuctionService {
         auction.setBidStep(request.bidStep());
         auction.setStartAt(request.startAt());
         auction.setEndAt(request.endAt());
+
+        if (request.imageUrls() != null) {
+            auction.getImageUrls().clear();
+            auction.getImageUrls().addAll(request.imageUrls());
+        }
 
         if (!auction.getCategory().getId().equals(request.categoryId())) {
             Category newCategory = categoryRepository.findById(request.categoryId())

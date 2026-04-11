@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
 
 public record AuctionRequest(
     @NotBlank String title,
@@ -12,6 +13,7 @@ public record AuctionRequest(
     @NotNull BigDecimal startPrice,
     @NotNull BigDecimal bidStep,
     @NotNull Integer categoryId,
+    List<String> imageUrls,
     @NotNull LocalDateTime startAt,
     @NotNull LocalDateTime endAt
 ) {}

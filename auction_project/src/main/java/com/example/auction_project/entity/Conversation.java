@@ -31,4 +31,11 @@ public class Conversation {
     @Column(name = "created_at", updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public User getPartner(User currentUser) {
+        if (this.participantOne.getId().equals(currentUser.getId())) {
+            return this.participantTwo;
+        }
+        return this.participantOne;
+    }
 }

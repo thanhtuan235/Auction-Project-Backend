@@ -11,7 +11,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 @Entity
 @Table(name = "auctions")
@@ -40,6 +42,15 @@ public class Auction {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @ElementCollection
+    @CollectionTable(
+        name = "auction_images", 
+        joinColumns = @JoinColumn(name = "auction_id")
+    )
+    @Column(name = "image_url")
+    @Builder.Default
+    private List<String> imageUrls = new ArrayList<>();
 
     @Column(name = "start_price", precision = 19, scale = 4, nullable = false)
     private BigDecimal startPrice;

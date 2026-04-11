@@ -40,14 +40,11 @@ public class NotificationService {
             .toList();
     }
 
-    @Transactional
-    public NotificationResponse updateIsRead(Long id, User user){
-        Notification notification = notificationRepository.findByIdAndUser(id, user)
-                        .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
-        
-        notification.setIsRead(true);
-
-        return mapToNotificationResponse(notificationRepository.save(notification));
+    public void markAsRead(Long id, User user) {
+        int updatedRows = notificationRepository.markAsReadOptimized(id, user);
+        if (updatedRows == 0) {
+            throw new ResourceNotFoundException("Notification not found or unauthorized");
+        }
     }
 
     @Transactional

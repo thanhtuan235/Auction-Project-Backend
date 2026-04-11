@@ -35,8 +35,9 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<NotificationResponse> updateIsReadNotification(@PathVariable Long id, @AuthenticationPrincipal User user){
-        return ResponseEntity.ok(notificationService.updateIsRead(id, user));
+    public ResponseEntity<Void> updateIsReadNotification(@PathVariable Long id, @AuthenticationPrincipal User user){
+        notificationService.markAsRead(id, user);
+        return ResponseEntity.noContent().build();
     }
     
     @PostMapping("/alert")
