@@ -29,7 +29,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(userService.mapToUserResponse(user));
+        return ResponseEntity.ok(userService.findByUsername(user.getUsername()));
     }
 
     @PatchMapping("/{id}/role")

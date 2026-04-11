@@ -421,7 +421,7 @@ Hệ thống sử dụng PostgreSQL để lưu trữ dữ liệu bền vững, �
 |-----------|----------------|---------------------------|-----------|
 | id        | BIGSERIAL      | PK                        | ID |
 | user_id   | UUID           | FK, INDEXED               | Người nhận |
-| type      | VARCHAR(50)    | NOT NULL                  | OUTBID, WIN, NEW_ITEM |
+| type      | VARCHAR(50)    | NOT NULL                  | OUTBID, WIN, NEW_ITEM, ALERT |
 | message   | TEXT           | NOT NULL                  | Nội dung |
 | is_read   | BOOLEAN        | Default: false            | Trạng thái |
 | created_at| TIMESTAMP      | Default: now()            | Thời gian |
