@@ -1,7 +1,7 @@
 package com.example.auction_project.dto.Auction;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.List;
 
@@ -16,6 +16,6 @@ public record AuctionResponse(
     BigDecimal bidStep,
     BigDecimal currentPrice,
     String status,
-    LocalDateTime startAt,
-    LocalDateTime endAt
+    OffsetDateTime startAt,
+    OffsetDateTime endAt
 ) {}

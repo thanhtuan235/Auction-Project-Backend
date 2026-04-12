@@ -1,5 +1,6 @@
 package com.example.auction_project.controller;
 
+import com.example.auction_project.dto.Users.InterestRequest;
 import com.example.auction_project.dto.Users.UserResponse;
 import com.example.auction_project.dto.Users.UserUpdateRequest;
 import com.example.auction_project.entity.User;
@@ -56,6 +57,14 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/interests")
+    public ResponseEntity<Void> updateMyInterests(
+            @RequestBody InterestRequest request, 
+            @AuthenticationPrincipal User user) {
+        userService.updateInterests(user, request);
         return ResponseEntity.noContent().build();
     }
 }

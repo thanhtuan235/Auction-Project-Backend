@@ -1,6 +1,6 @@
 package com.example.auction_project.dto.Message;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record MessageResponse(
@@ -9,6 +9,6 @@ public record MessageResponse(
     String type,     
     String content,
     Boolean isRead,
-    LocalDateTime createdAt,
+    OffsetDateTime createdAt,
     Boolean isMine   
 ) {}

@@ -24,7 +24,7 @@ public class Category {
     private String slug;
 
     // FOR statistic
-    @ManyToMany(mappedBy = "interestedCategories")
+    @ManyToMany(mappedBy = "interests")
     @Builder.Default
     private Set<User> interestedUsers = new HashSet<>();
 }

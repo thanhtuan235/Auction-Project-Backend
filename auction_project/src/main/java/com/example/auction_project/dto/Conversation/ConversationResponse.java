@@ -1,5 +1,5 @@
 package com.example.auction_project.dto.Conversation;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record ConversationResponse(
@@ -10,6 +10,6 @@ public record ConversationResponse(
     UUID partnerId,
     String partnerName,
     String lastMessage,
-    LocalDateTime lastMessageAt,
+    OffsetDateTime lastMessageAt,
     int unreadCount
 ) {}

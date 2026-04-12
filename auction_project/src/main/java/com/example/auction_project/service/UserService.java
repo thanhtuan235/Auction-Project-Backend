@@ -1,13 +1,16 @@
 package com.example.auction_project.service;
 
+import com.example.auction_project.dto.Users.InterestRequest;
 import com.example.auction_project.dto.Users.UserResponse;
 import com.example.auction_project.dto.Users.UserUpdateRequest;
 import com.example.auction_project.entity.User;
 import com.example.auction_project.exception.ResourceNotFoundException;
+import com.example.auction_project.repository.CategoryRepository;
 import com.example.auction_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.auction_project.entity.Category;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +20,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     public List<UserResponse> findAll() {
         List<User> users = userRepository.findAll();
@@ -56,6 +60,17 @@ public class UserService {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void updateInterests(User user, InterestRequest request) {
+        User managedUser = userRepository.findById(user.getId())
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Category> categories = categoryRepository.findAllById(request.categoryIds());
+
+        managedUser.getInterests().clear();
+        managedUser.getInterests().addAll(categories);
     }
 
     private UserResponse mapToUserResponse(User user) {

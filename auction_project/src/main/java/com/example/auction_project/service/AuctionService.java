@@ -9,6 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import com.example.auction_project.repository.AuctionRepository;
 import com.example.auction_project.repository.CategoryRepository;
+import com.example.auction_project.repository.UserRepository;
 import com.example.auction_project.dto.Auction.AuctionRequest;
 import com.example.auction_project.dto.Auction.AuctionResponse;
 
@@ -23,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     private AuctionResponse convertToResponse(Auction auction) {
         return new AuctionResponse(
@@ -71,7 +74,18 @@ public class AuctionService {
                 .startAt(request.startAt())
                 .endAt(request.endAt())
                 .build();
+        
+        List<User> interestedUsers = userRepository.findByInterests_Id(auction.getCategory().getId());
 
+        for (User interestedUser : interestedUsers) {
+            if (!interestedUser.getId().equals(seller.getId())) {
+                notificationService.sendSystemNotification(
+                    interestedUser,
+                    "NEW_ITEM",
+                    "A new product you might be interested in has just been listed: " + auction.getTitle()
+                );
+            }
+        }
         return convertToResponse(auctionRepository.save(auction));
     }
 

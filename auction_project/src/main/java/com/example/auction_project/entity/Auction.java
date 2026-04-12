@@ -1,7 +1,7 @@
 package com.example.auction_project.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
@@ -69,14 +69,14 @@ public class Auction {
     private String status;
 
     @Column(name = "start_at", nullable = false)
-    private LocalDateTime startAt;
+    private OffsetDateTime startAt;
 
     @Column(name = "end_at", nullable = false)
-    private LocalDateTime endAt;
+    private OffsetDateTime endAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default

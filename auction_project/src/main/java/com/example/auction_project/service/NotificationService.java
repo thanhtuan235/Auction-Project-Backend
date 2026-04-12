@@ -64,4 +64,15 @@ public class NotificationService {
 
         return mapToNotificationResponse(notificationRepository.save(notification));
     }
+
+    @Transactional
+    public void sendSystemNotification(User user, String type, String message) {
+        Notification notification = Notification.builder()
+                .user(user)
+                .type(type)
+                .message(message)
+                .isRead(false)
+                .build();
+        notificationRepository.save(notification);
+    }
 }

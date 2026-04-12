@@ -34,7 +34,7 @@ public class ConversationService {
 
         Message welcomeMessage = Message.builder()
                                     .conversation(conversation)
-                                    .type("SYSTEM")
+                                    .type("SYSTEM_NOTIFICATION")
                                     .content("Congratulations! " + auction.getWinner().getUsername() + " has won the bid. Let's start discussing the product." + auction.getTitle())
                                     .build();
 

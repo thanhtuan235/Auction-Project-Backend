@@ -1,6 +1,6 @@
 package com.example.auction_project.dto.Users;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record UserResponse(
@@ -9,6 +9,6 @@ public record UserResponse(
         String email,
         String role,
         String status,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt
 ) {}

@@ -1,6 +1,5 @@
 package com.example.auction_project.controller;
 
-import com.example.auction_project.repository.MessageRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
