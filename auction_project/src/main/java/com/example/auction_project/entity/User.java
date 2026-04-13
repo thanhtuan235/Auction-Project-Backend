@@ -69,6 +69,10 @@ public class User implements UserDetails{
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
     }
 
+    @Column(name = "token_version")
+    @Builder.Default
+    private Integer tokenVersion = 0;
+
     @Override
     public String getPassword() {
         return passwordHash;

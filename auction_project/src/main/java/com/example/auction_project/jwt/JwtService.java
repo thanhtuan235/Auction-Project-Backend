@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import com.example.auction_project.entity.User;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -33,8 +34,17 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public Integer extractTokenVersion(String token) {
+        return extractClaim(token, claims -> claims.get("version", Integer.class));
+    }
+
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+
+        if(userDetails instanceof User user){
+            claims.put("version", user.getTokenVersion());
+        }
+        return generateToken(claims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
@@ -49,7 +59,14 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+
+        if (!(userDetails instanceof User user)) return false;
+
+        Integer tokenVersion = extractTokenVersion(token);
+
+        return username.equals(user.getUsername())
+                && !isTokenExpired(token)
+                && tokenVersion.equals(user.getTokenVersion());
     }
 
     private boolean isTokenExpired(String token) {
