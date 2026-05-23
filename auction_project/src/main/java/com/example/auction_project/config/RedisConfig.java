@@ -29,7 +29,7 @@ public class RedisConfig {
     } 
 
     @Bean
-    public MessageListenerAdapter listenerAdapter(RedisMessageSubscriber subscriber) {z
+    public MessageListenerAdapter listenerAdapter(RedisMessageSubscriber subscriber) {
         return new MessageListenerAdapter(subscriber);
     }
 

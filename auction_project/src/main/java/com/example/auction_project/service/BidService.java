@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import com.example.auction_project.dto.RedisMessage;
 import com.example.auction_project.dto.BidHistory.BidRequest;
 import com.example.auction_project.dto.BidHistory.BidResponse;
 import com.example.auction_project.repository.AuctionRepository;
@@ -26,66 +27,90 @@ public class BidService {
     private final BidHistoryRepository bidHistoryRepository;
     private final AuctionRepository auctionRepository;
     private final NotificationService notificationService;
+    private final RedisMessagePublisher redisMessagePublisher;
+    private final RedisLockService redisLockService;
+    private final RedisCacheService redisCacheService;
 
     @Transactional
     public BidResponse placeBid(BidRequest request, User user){
-        //Find auction and lock
-        Auction auction = auctionRepository.findByIdWithLock(request.auctionId())
-                .orElseThrow(() -> new ResourceNotFoundException("The auction does not exist."));
-        
-        User previousWinner = auction.getWinner();
-
-        //Logic check own seller place bid
-        if(auction.getSeller().getId().equals(user.getId())){
-            throw new IllegalArgumentException("Sellers are not allowed to participate in auctions for their own products.");
+        //Redis Lock
+        String lockValue = redisLockService.acquireLock(request.auctionId().toString());
+        if(lockValue == null){
+            throw new IllegalStateException("System is busy, please try again.");
         }
+        try {
+            //Find auction and lock (database lock)
+            Auction auction = auctionRepository.findByIdWithLock(request.auctionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("The auction does not exist."));
+            
+            User previousWinner = auction.getWinner();
 
-        //Logic check time
-        OffsetDateTime now = OffsetDateTime.now();
+            //Logic check own seller place bid
+            if(auction.getSeller().getId().equals(user.getId())){
+                throw new IllegalArgumentException("Sellers are not allowed to participate in auctions for their own products.");
+            }
 
-        if(now.isBefore(auction.getStartAt()) || now.isAfter(auction.getEndAt())){
-            throw new IllegalStateException("The auction has either not started or has already ended.");
-        }
+            //Logic check time
+            OffsetDateTime now = OffsetDateTime.now();
 
-        //Logic check status
-        if(!"OPEN".equals(auction.getStatus())){
-            throw new IllegalStateException("The auction is not in operation.");
-        }
+            if(now.isBefore(auction.getStartAt()) || now.isAfter(auction.getEndAt())){
+                throw new IllegalStateException("The auction has either not started or has already ended.");
+            }
 
-        //Logic check bid amount
-        BigDecimal minNextBid = auction.getCurrentPrice().add(auction.getBidStep());
+            //Logic check status
+            if(!"OPEN".equals(auction.getStatus())){
+                throw new IllegalStateException("The auction is not in operation.");
+            }
 
-        if(request.amount().compareTo(minNextBid) < 0){
-            throw new IllegalArgumentException("The bid amount must be at least " + minNextBid);
-        }
+            //Logic check bid amount
+            BigDecimal minNextBid =  auction.getCurrentPrice().add(auction.getBidStep());
 
-        auction.setCurrentPrice(request.amount());
-        auction.setWinner(user);
-        auctionRepository.save(auction);
+            if(request.amount().compareTo(minNextBid) < 0){
+                throw new IllegalArgumentException("The bid amount must be at least " + minNextBid);
+            }
 
-        if (previousWinner != null && !previousWinner.getId().equals(user.getId())) {
-            notificationService.sendSystemNotification(
-                previousWinner, 
-                "OUT_BID", 
-                "You have been outbid on: " + auction.getTitle() + ". New price: " + auction.getCurrentPrice()
+            auction.setCurrentPrice(request.amount());
+            auction.setWinner(user);
+            auctionRepository.save(auction);
+
+
+            if (previousWinner != null && !previousWinner.getId().equals(user.getId())) {
+                notificationService.sendSystemNotification(
+                    previousWinner, 
+                    "OUT_BID", 
+                    "You have been outbid on: " + auction.getTitle() + ". New price: " + auction.getCurrentPrice()
+                );
+            }
+
+            BidHistory bidHistory = BidHistory.builder()
+                                        .auction(auction)
+                                        .user(user)
+                                        .amount(request.amount())
+                                        .build();
+
+            BidHistory saved = bidHistoryRepository.save(bidHistory);
+
+
+            BidResponse bidResponse = new BidResponse(
+                saved.getId(),
+                auction.getId(),
+                user.getUsername(),
+                saved.getAmount(),
+                saved.getCreatedAt()
             );
+
+            RedisMessage redisMessage = RedisMessage.builder()
+                .type("BID_PLACED")
+                .topic("/topic/auction/" + auction.getId()) 
+                .payload(bidResponse)
+                .build();
+            
+            redisCacheService.cacheAuctionState(auction);    
+            redisMessagePublisher.publish(redisMessage);
+            return bidResponse;
+        } finally {
+            redisLockService.releaseLock(request.auctionId().toString(), lockValue);
         }
-
-        BidHistory bidHistory = BidHistory.builder()
-                                    .auction(auction)
-                                    .user(user)
-                                    .amount(request.amount())
-                                    .build();
-                    
-        BidHistory saved = bidHistoryRepository.save(bidHistory);
-
-        return new BidResponse(
-            saved.getId(),
-            auction.getId(),
-            user.getUsername(),
-            saved.getAmount(),
-            saved.getCreatedAt()
-        );
     }
 
     public List<BidResponse> getBidsByAuction(UUID auctionId){
