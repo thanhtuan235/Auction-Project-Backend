@@ -19,7 +19,6 @@ import com.example.auction_project.exception.ResourceNotFoundException;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import com.example.auction_project.service.NotificationService;
 
 @Service
 @RequiredArgsConstructor

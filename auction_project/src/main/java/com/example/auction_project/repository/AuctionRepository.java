@@ -2,7 +2,6 @@ package com.example.auction_project.repository;
 
 
 
-import org.hibernate.LockMode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;

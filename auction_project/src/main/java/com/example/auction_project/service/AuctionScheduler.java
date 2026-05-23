@@ -7,28 +7,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.auction_project.repository.AuctionRepository;
-import com.example.auction_project.repository.BidHistoryRepository;
 
 import java.util.List;
-import com.example.auction_project.entity.User;
 import com.example.auction_project.entity.Auction;
-import com.example.auction_project.entity.BidHistory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Optional;
+
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class AuctionScheduler {
     private final AuctionRepository auctionRepository;
-    private final BidHistoryRepository bidHistoryRepository;
     private final ConversationService conversationService;
     private final NotificationService notificationService;
 
     //Scan per 1 minute
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 60000)
     @Transactional
     public void processAuctions(){
         OffsetDateTime now = OffsetDateTime.now();
