@@ -3,6 +3,7 @@ package com.example.auction_project.service;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+import com.example.auction_project.dto.RedisMessage;
 import com.example.auction_project.dto.Notification.NotificationAlertRequest;
 import com.example.auction_project.dto.Notification.NotificationResponse;
 import com.example.auction_project.repository.NotificationRepository;
@@ -17,8 +18,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+    private final RedisMessagePublisher redisMessagePublisher;
     private final NotificationRepository notificationRepository;
-
     private final UserRepository userRepository;
 
     private NotificationResponse mapToNotificationResponse(Notification notification){
@@ -62,7 +63,11 @@ public class NotificationService {
         System.out.println("request = " + request);
         System.out.println("targetUserId = " + request.targetUserId());
 
-        return mapToNotificationResponse(notificationRepository.save(notification));
+        NotificationResponse response = mapToNotificationResponse(notificationRepository.save(notification));
+
+        publishToUser(user.getUsername().toString(), response);
+
+        return response;
     }
 
     @Transactional
@@ -73,6 +78,18 @@ public class NotificationService {
                 .message(message)
                 .isRead(false)
                 .build();
-        notificationRepository.save(notification);
+        NotificationResponse response = mapToNotificationResponse(notificationRepository.save(notification));
+
+        publishToUser(user.getUsername().toString(), response);
+    }
+
+    private void publishToUser(String username, NotificationResponse response) {
+        RedisMessage redisMessage =  RedisMessage.builder()
+                                        .type("NOTIFICATION")
+                                        .topic("/user/" + username + "/queue/notifications")
+                                        .payload(response)
+                                        .build();
+
+        redisMessagePublisher.publish(redisMessage);
     }
 }
