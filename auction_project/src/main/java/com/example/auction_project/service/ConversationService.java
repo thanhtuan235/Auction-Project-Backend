@@ -35,7 +35,7 @@ public class ConversationService {
         Message welcomeMessage = Message.builder()
                                     .conversation(conversation)
                                     .type("SYSTEM_NOTIFICATION")
-                                    .content("Congratulations! " + auction.getWinner().getUsername() + " has won the bid. Let's start discussing the product." + auction.getTitle())
+                                    .content("Congratulations! " + auction.getWinner().getUsername() + " has won the bid. Let's start discussing the product: " + auction.getTitle())
                                     .build();
 
         messageRepository.save(welcomeMessage);
@@ -47,6 +47,8 @@ public class ConversationService {
                 User partner = conversation.getPartner(user);
                 Message lastMsg = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversation.getId());
                 
+                int unreadCount = messageRepository.countUnreadMessages(conversation.getId(), user);
+
                 return new ConversationResponse(
                     conversation.getId(),
                     conversation.getAuction().getId(),
@@ -56,7 +58,7 @@ public class ConversationService {
                     partner.getUsername(),
                     lastMsg != null ? lastMsg.getContent() : "No message",
                     lastMsg != null ? lastMsg.getCreatedAt() : conversation.getCreatedAt(),
-                    0 
+                    unreadCount 
                 );
             }).toList();
     }

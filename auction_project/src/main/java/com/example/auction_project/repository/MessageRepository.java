@@ -16,6 +16,12 @@ public interface MessageRepository extends JpaRepository<Message, Long>{
 
     List<Message> findByConversationIdOrderByCreatedAtAsc(Long conversationId);
 
+    @Query("SELECT COUNT(m) FROM Message m " +
+           "WHERE m.conversation.id = :convId " +
+           "AND m.sender != :currentUser " +
+           "AND m.isRead = false")
+    int countUnreadMessages(@Param("convId") Long convId, @Param("currentUser") User currentUser);
+
     @Modifying
     @Transactional
     @Query("UPDATE Message m SET m.isRead = true " +
