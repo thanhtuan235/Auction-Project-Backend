@@ -89,6 +89,7 @@ public class AuctionService {
                     "A new product you might be interested in has just been listed: " + saved.getTitle()
             );
         }
+        
         return convertToResponse(auctionRepository.save(auction));
     }
 

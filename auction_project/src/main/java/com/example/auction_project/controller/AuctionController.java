@@ -5,6 +5,7 @@ import com.example.auction_project.dto.Auction.AuctionResponse;
 import com.example.auction_project.entity.User;
 import com.example.auction_project.service.AuctionService;
 import jakarta.validation.Valid;
+import com.example.auction_project.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +59,7 @@ public class AuctionController {
             @PathVariable UUID id,
             @AuthenticationPrincipal User user) {
         
-        boolean isAdmin = user.getRole().equals("ADMIN");
+         boolean isAdmin = Role.ADMIN.name().equals(user.getRole());
         auctionService.delete(id, user.getUsername(), isAdmin);
 
         return ResponseEntity.noContent().build();

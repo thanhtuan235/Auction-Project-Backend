@@ -2,6 +2,8 @@ package com.example.auction_project.entity;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
@@ -10,10 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 @Entity
 @Table(name = "auctions")
@@ -45,7 +43,7 @@ public class Auction {
 
     @ElementCollection
     @CollectionTable(
-        name = "auction_images", 
+        name = "auction_images",
         joinColumns = @JoinColumn(name = "auction_id")
     )
     @Column(name = "image_url")
@@ -81,14 +79,4 @@ public class Auction {
     @Column(name = "is_deleted", nullable = false)
     @Builder.Default
     private boolean isDeleted = false;
-
-    // User interest
-    @ManyToMany
-    @JoinTable(
-      name = "user_interests", 
-      joinColumns = @JoinColumn(name = "user_id"), 
-      inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @Builder.Default
-    private Set<Category> interestedCategories = new HashSet<>();
 }

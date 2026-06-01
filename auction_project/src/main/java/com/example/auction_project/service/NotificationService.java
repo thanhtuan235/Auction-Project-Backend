@@ -4,19 +4,20 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.auction_project.dto.RedisMessage;
 import com.example.auction_project.dto.Notification.NotificationAlertRequest;
 import com.example.auction_project.dto.Notification.NotificationResponse;
-import com.example.auction_project.repository.NotificationRepository;
-import com.example.auction_project.repository.UserRepository;
 import com.example.auction_project.entity.Notification;
 import com.example.auction_project.entity.User;
 import com.example.auction_project.exception.ResourceNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
+import com.example.auction_project.repository.NotificationRepository;
+import com.example.auction_project.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,23 +26,22 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
 
-    private NotificationResponse mapToNotificationResponse(Notification notification){
+    private NotificationResponse mapToNotificationResponse(Notification notification) {
         return new NotificationResponse(
-            notification.getId(),
-            notification.getType(),
-            notification.getMessage(),
-            notification.getIsRead(),
-            notification.getCreatedAt()
+                notification.getId(),
+                notification.getType(),
+                notification.getMessage(),
+                notification.getIsRead(),
+                notification.getCreatedAt()
         );
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationResponse> findAllByUser(User user){
-        List<Notification> notifications = notificationRepository.findByUserOrderByCreatedAtDesc(user);
-
-        return notifications.stream()
-            .map(this::mapToNotificationResponse)
-            .toList();
+    public List<NotificationResponse> findAllByUser(User user) {
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user)
+                .stream()
+                .map(this::mapToNotificationResponse)
+                .toList();
     }
 
     public void markAsRead(Long id, User user) {
@@ -52,23 +52,23 @@ public class NotificationService {
     }
 
     @Transactional
-    public NotificationResponse createNotification(NotificationAlertRequest request){
+    public NotificationResponse createNotification(NotificationAlertRequest request) {
         User user = userRepository.findById(request.targetUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Notification notification = Notification.builder()
-                            .user(user)
-                            .type("ALERT")
-                            .message(request.message())
-                            .isRead(false)
-                            .build();
+                .user(user)
+                .type("ALERT")
+                .message(request.message())
+                .isRead(false)
+                .build();
 
-        System.out.println("request = " + request);
-        System.out.println("targetUserId = " + request.targetUserId());
+        log.debug("Creating alert notification for user: {}", request.targetUserId());
 
         NotificationResponse response = mapToNotificationResponse(notificationRepository.save(notification));
 
-        publishToUser(user.getUsername().toString(), response);
+
+        publishToUser(user.getUsername(), response);
 
         return response;
     }
@@ -81,12 +81,13 @@ public class NotificationService {
                 .message(message)
                 .isRead(false)
                 .build();
+
         NotificationResponse response = mapToNotificationResponse(notificationRepository.save(notification));
 
-        publishToUser(user.getUsername().toString(), response);
+        publishToUser(user.getUsername(), response);
     }
 
-     @Async("notificationExecutor")
+    @Async("notificationExecutor")
     @Transactional
     public void sendBulkNotificationAsync(List<User> users, String type, String message) {
         for (User user : users) {
@@ -99,11 +100,11 @@ public class NotificationService {
     }
 
     private void publishToUser(String username, NotificationResponse response) {
-        RedisMessage redisMessage =  RedisMessage.builder()
-                                        .type("NOTIFICATION")
-                                        .topic("/user/" + username + "/queue/notifications")
-                                        .payload(response)
-                                        .build();
+        RedisMessage redisMessage = RedisMessage.builder()
+                .type("NOTIFICATION")
+                .topic("/user/" + username + "/queue/notifications")
+                .payload(response)
+                .build();
 
         redisMessagePublisher.publish(redisMessage);
     }
