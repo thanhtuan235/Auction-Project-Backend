@@ -71,6 +71,8 @@ public class UserService {
 
         managedUser.getInterests().clear();
         managedUser.getInterests().addAll(categories);
+
+        userRepository.save(managedUser);
     }
 
     private UserResponse mapToUserResponse(User user) {
