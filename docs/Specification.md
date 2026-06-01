@@ -62,7 +62,7 @@
 
 - **F.04 - Caching**: Lưu trữ giá cao nhất hiện tại (Current High Bid) vào Redis để truy xuất với tốc độ cực cao.
 
-- **F.05 - Scheduler**: Hệ thống tự động quét các phiên đấu giá đến hạn kết thúc mỗi giây (Sử dụng Spring Scheduler hoặc Redis TTL Event).
+- **F.05 - Scheduler**: Hệ thống tự động quét các phiên đấu giá đến hạn kết thúc mỗi 5 giây (Sử dụng Spring Scheduler hoặc Redis TTL Event).
 
 - **F.06 - Notification Service**: Hệ thống phải tự động gửi thông báo real-time hoặc push notification khi:
                                     - Người dùng bị outbid.
@@ -150,7 +150,7 @@
 
 ---
 
-### UC-03: Place Bid ⭐ (Critical)
+### UC-03: Place Bid (Critical)
 
 - **Actor**: Bidder  
 - **Description**: Người dùng đặt giá cho một sản phẩm đang đấu giá.  
