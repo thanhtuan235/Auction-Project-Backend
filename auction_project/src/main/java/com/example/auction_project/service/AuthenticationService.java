@@ -31,17 +31,17 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-    
+
         var user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
-                .role(request.role())
+                .role("BIDDER")
                 .status("ACTIVE")
                 .build();
-        
+
         repository.save(user);
-        
+
         var jwtToken = jwtService.generateToken(user);
         return new AuthResponse(jwtToken);
     }
@@ -53,16 +53,15 @@ public class AuthenticationService {
                         request.password()
                 )
         );
-        
+
         var user = repository.findByUsername(request.username())
-                .orElseThrow(); 
-        
+                .orElseThrow();
+
         var jwtToken = jwtService.generateToken(user);
         return new AuthResponse(jwtToken);
     }
 
-
-//     GoogleAuth
+    // GoogleAuth
     @Value("${app.google.client-id}")
     private String googleClientId;
 
@@ -76,23 +75,24 @@ public class AuthenticationService {
             GoogleIdToken.Payload payload = idToken.getPayload();
 
             String email = payload.getEmail();
-            String defaultUsername = email.substring(0, email.indexOf("@")); 
+            String defaultUsername = email.substring(0, email.indexOf("@"));
 
             var user = repository.findByEmail(email).orElse(null);
 
             if (user == null) {
                 user = User.builder()
-                        .username(defaultUsername + "_" + UUID.randomUUID().toString().substring(0, 5)) 
+                        .username(defaultUsername + "_" + UUID.randomUUID().toString().substring(0, 5))
                         .email(email)
-                        .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString())) 
-                        .role("BIDDER") 
+                        .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .role("BIDDER")
+                        .status("ACTIVE")
                         .build();
                 repository.save(user);
             }
 
             var jwtToken = jwtService.generateToken(user);
             return new AuthResponse(jwtToken);
-            
+
         } else {
             throw new RuntimeException("Google Token không hợp lệ!");
         }
