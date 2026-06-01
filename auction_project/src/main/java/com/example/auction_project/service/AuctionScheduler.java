@@ -24,7 +24,7 @@ public class AuctionScheduler {
     private final NotificationService notificationService;
 
     //Scan per 1 minute
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 5000)
     @Transactional
     public void processAuctions(){
         OffsetDateTime now = OffsetDateTime.now();
@@ -33,10 +33,9 @@ public class AuctionScheduler {
         List<Auction> toStart = auctionRepository.findByStatusAndStartAtBefore("PENDING", now);
         for(Auction auction : toStart){
             auction.setStatus("OPEN");
-            auctionRepository.save(auction);
 
             // LOGGING
-            log.info("Auction '{}' Start!", auction.getTitle());
+            log.info("Auction '{}' opene.!", auction.getTitle());
         }
 
         //AUTO CLOSE AUCTION: OPEN -> CLOSED
@@ -60,7 +59,6 @@ public class AuctionScheduler {
                 log.info("The session '{}' ended but no one joined.", auction.getTitle());
             }
 
-            auctionRepository.save(auction);
         }
     }
 
