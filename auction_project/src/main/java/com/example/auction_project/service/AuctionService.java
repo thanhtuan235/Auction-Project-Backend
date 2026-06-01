@@ -74,17 +74,20 @@ public class AuctionService {
                 .startAt(request.startAt())
                 .endAt(request.endAt())
                 .build();
-        
-        List<User> interestedUsers = userRepository.findByInterests_Id(auction.getCategory().getId());
 
-        for (User interestedUser : interestedUsers) {
-            if (!interestedUser.getId().equals(seller.getId())) {
-                notificationService.sendSystemNotification(
-                    interestedUser,
+        Auction saved = auctionRepository.save(auction);        
+        
+        List<User> interestedUsers = userRepository.findByInterests_Id(category.getId())
+                .stream()
+                .filter(u -> !u.getId().equals(seller.getId()))
+                .toList();
+
+        if (!interestedUsers.isEmpty()) {
+            notificationService.sendBulkNotificationAsync(
+                    interestedUsers,
                     "NEW_ITEM",
-                    "A new product you might be interested in has just been listed: " + auction.getTitle()
-                );
-            }
+                    "A new product you might be interested in has just been listed: " + saved.getTitle()
+            );
         }
         return convertToResponse(auctionRepository.save(auction));
     }

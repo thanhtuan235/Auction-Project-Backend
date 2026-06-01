@@ -1,6 +1,8 @@
 package com.example.auction_project.service;
 
 import java.util.List;
+
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.auction_project.dto.RedisMessage;
@@ -14,9 +16,10 @@ import com.example.auction_project.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
     private final RedisMessagePublisher redisMessagePublisher;
     private final NotificationRepository notificationRepository;
@@ -81,6 +84,18 @@ public class NotificationService {
         NotificationResponse response = mapToNotificationResponse(notificationRepository.save(notification));
 
         publishToUser(user.getUsername().toString(), response);
+    }
+
+     @Async("notificationExecutor")
+    @Transactional
+    public void sendBulkNotificationAsync(List<User> users, String type, String message) {
+        for (User user : users) {
+            try {
+                sendSystemNotification(user, type, message);
+            } catch (Exception e) {
+                log.error("Failed to send notification to user {}: {}", user.getUsername(), e.getMessage());
+            }
+        }
     }
 
     private void publishToUser(String username, NotificationResponse response) {
